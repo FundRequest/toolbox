@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "EthereumJS TestRPC Sandbox Container"
+
+if [[ `docker ps | grep testrpc.sandbox` == 0 ]]; then
+  echo "INFO > Stopping container 'testrpc.sandbox'"
+  docker stop testrpc.sandbox
+fi 
+echo "INFO > Startingg container 'testrpc.sandbox'"
+docker run -d --rm -p 127.0.0.1:8545:8545 --name testrpc.sandbox ethereumjs/testrpc
+if [[ `docker ps | grep testrpc.sandbox` != 0 ]]; then
+  echo "ERROR > Can't find container 'testrpc.sandbox', something must be wrong. Exiting."
+  exit 1
+else
+dokcer logs -f testrpc.sandbox
+fi
+

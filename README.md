@@ -1,15 +1,12 @@
-# Welomce to the FundRequest Toolbox
+# Welcome to the FundRequest Toolbox
 
-Git repo containing support tool / utilities scripts to help building, developing and running of the different MVP components
-
+This git repo contains support tool / utilities scripts to help building, developing and running of the different MVP components
 
 
 # INSTALL
 
 
-
 The toolbox is a combination of Docker images and shell scripts.
-
 
 
 ```bash
@@ -19,13 +16,10 @@ echo "export PATH=$PATH:$PWD/bin" >> ~/.bash_profile
 source ~/.bash_profile
 ```
 
-
 # INVENTORY
 
 
 The toolbox currently contains the following functionalities:
-
-
 
 * `TestRPC`
 * `Geth Client`
