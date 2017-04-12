@@ -1,7 +1,9 @@
 #!/bin/bash
-
+echo
 echo "EthereumJS TestRPC Sandbox Container"
-if [[ `docker images | grep ethereumjs/testrpc` != 0 ]]; then
+echo "------------------------------------"
+CMD=`docker images | grep ethereumjs/testrpc`
+if [[ $? != 0 ]]; then
   echo "INFO > 'ethereumjs/testrpc' image not found, creating ..."
   OLD_PWD=$PWD
   SCRIPT_LOC=`dirname $0`
@@ -10,17 +12,22 @@ if [[ `docker images | grep ethereumjs/testrpc` != 0 ]]; then
   cd $OLD_PWD
 fi
 
-
-if [[ `docker ps | grep testrpc.sandbox` == 0 ]]; then
+CMD=`docker ps | grep testrpc.sandbox`
+if [[ $?  == 0 ]]; then
   echo "INFO > Stopping container 'testrpc.sandbox'"
-  docker stop testrpc.sandbox
+  FEEDBACK=`docker stop testrpc.sandbox`
 fi 
-echo "INFO > Startingg container 'testrpc.sandbox'"
-docker run -d --rm -p 127.0.0.1:8545:8545 --name testrpc.sandbox ethereumjs/testrpc
-if [[ `docker ps | grep testrpc.sandbox` != 0 ]]; then
+echo "INFO > Starting container 'testrpc.sandbox'"
+CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name testrpc.sandbox ethereumjs/testrpc`
+echo "INFO > container 'testrpc.sandbox' started with id $CONTAINER_ID"
+sleep 5
+CMD=`docker ps | grep testrpc.sandbox`
+if [[ $? != 0 ]]; then
   echo "ERROR > Can't find container 'testrpc.sandbox', something must be wrong. Exiting."
   exit 1
 else
-dokcer logs -f testrpc.sandbox
+  echo "INFO > Start tailing the container log. Ctrl+C to dettach"
+  sleep 2
+  docker logs -f testrpc.sandbox
 fi
 
