@@ -21,7 +21,7 @@ source ~/.bash_profile
 
 The toolbox currently contains the following functionalities:
 
-* `TestRPC`
+* `mvp_testrpc` - A EthereumJS TestRPC
 * `Geth Client`
 * `MVP Frontend`
 * `MVP Backend Core`
