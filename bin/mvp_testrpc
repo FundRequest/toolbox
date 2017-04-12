@@ -1,6 +1,15 @@
 #!/bin/bash
 
 echo "EthereumJS TestRPC Sandbox Container"
+if [[ `docker images | grep ethereumjs/testrpc` != 0 ]]; then
+  echo "INFO > 'ethereumjs/testrpc' image not found, creating ..."
+  OLD_PWD=$PWD
+  SCRIPT_LOC=`dirname $0`
+  cd $SCRIPT_LOC/../testrpc
+  docker build -t ethereumjs/testrpc .
+  cd $OLD_PWD
+fi
+
 
 if [[ `docker ps | grep testrpc.sandbox` == 0 ]]; then
   echo "INFO > Stopping container 'testrpc.sandbox'"
