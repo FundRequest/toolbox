@@ -15,7 +15,7 @@ usage()
 {
 cat <<EOF
 
-usage: $0 ACTION MODULE
+usage: toolbox ACTION MODULE
 
 FundRequest Toolbox used to setup several FundRequest modules
 
