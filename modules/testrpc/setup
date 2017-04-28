@@ -1,0 +1,209 @@
+#/bin/bash -e
+: '
+FundRequest Toolbox module TestRPC
+
+Version 1.0
+  - 2017-04-28 : Init
+  
+
+Updated by Karel Striegel
+'
+VERSION=1.0
+SCRIPT_LOC=`dirname $0`
+
+COLOR_BLUE="\033[36m"
+COLOR_GREEN="\033[31m"
+RESET_COLORS="\033[0m"
+SAYAN_COLORS="\033[95m"
+
+usage()
+{
+cat <<EOF
+
+usage: $0 MODULE
+
+FundRequest Toolbox module TestRPC
+
+ACTION:
+   install                Install the module 
+   remove                 Remove the module 
+   start                  Start the module 
+   stop                   Stop the module 
+   restart                Restart the module
+   update                 Update the module
+ 
+EOF
+}
+
+checkPrereq(){
+  TMP=`docker version 2>/dev/null` 
+  if [[ $? != 0 ]]
+  then
+     echo "ERROR: Docker command not found." >&2
+     echo "       Please download and install Docker."
+     echo "       Visit https://www.docker.com/community-edition" >&2
+     exit 1
+  fi
+}
+
+checkPrereq
+
+ACTION=$1
+
+# Parameter checking
+if [[ -z $ACTION ]] 
+then
+     usage
+     echo "BAD ARGUMENTS: Please provide at least an ACTION" >&2
+     exit 1
+fi
+
+if [[ $ACTION != "install" ]] && [[ $ACTION != "start" ]] && [[ $ACTION != "stop" ]] && [[ $ACTION != "update" ]] && [[ $ACTION != "remove" ]] && [[ $ACTION != "restart" ]] 
+then
+     usage
+     echo "BAD ARGUMENTS: '$ACTION' is an unknown ACTION." >&2
+     exit 1
+fi
+
+
+install()
+{
+  echo "INFO > Installing module 'testrpc'"
+  CMD=`docker images | grep fundrequest/testrpc`
+  if [[ $? != 0 ]]; then
+    echo "INFO > Image 'fundrequest/testrpc' not found, creating ..."
+    OLD_PWD=$PWD
+    SCRIPT_LOC=`dirname $0`
+    cd $SCRIPT_LOC/
+    echo -e $COLOR_BLUE
+    docker build -t fundrequest/testrpc .
+    if [[ $? == 0 ]]; then
+      echo "INFO > Succesfully installed module 'testrpc'."
+    fi
+    echo -e $RESET_COLORS
+    cd $OLD_PWD
+  else
+    echo "INFO > Module 'testrpc' already installed."
+  fi
+}
+
+remove()
+{
+  echo -e "INFO > Removing module 'testrpc' $SAYAN_COLORS"
+  CMD=`docker images | grep fundrequest/testrpc`
+  if [[ $? == 0 ]]; then
+    for container in `docker ps | grep fundrequest/testrpc | cut -d " " -f1`
+    do
+      docker stop $container
+    done
+    for container in `docker ps -a | grep fundrequest/testrpc | cut -d " " -f1`
+    do
+      docker rm $container
+    done
+    docker rmi fundrequest/testrpc
+    echo -e "$RESET_COLORS""INFO > Module 'testrpc' has been removed."
+  else
+    echo -e "$RESET_COLORS""INFO > Module 'testrpc' already removed."
+  fi
+}
+
+start()
+{
+  echo -e "INFO > Starting module 'testrpc' $COLOR_GREEN"
+  CMD=`docker ps | grep fundrequest.testrpc.dev`
+  if [[ $?  == 0 ]]; then
+    echo "INFO > Container 'fundrequest.testrpc.dev' already started"
+    echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.testrpc.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
+ else
+    echo "INFO > Starting container 'fundrequest.testrpc.dev'"
+    CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name fundrequest.testrpc.dev fundrequest/testrpc`
+    sleep 5
+    CMD=`docker ps | grep fundrequest.testrpc.dev`
+    if [[ $? != 0 ]]; then
+      echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.testrpc.dev', something must be wrong. Exiting.""$RESET_COLORS"
+      exit 1
+    else
+      echo -e "INFO > container 'fundrequest.testrpc.dev' started with id $CONTAINER_ID""$RESET_COLORS"
+      sleep 2
+      docker logs fundrequest.testrpc.dev
+      echo -e "INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.testrpc.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+    fi
+  fi
+}
+
+stop()
+{
+  echo -e "INFO > Stopping module 'testrpc' $SAYAN_COLORS"
+  CMD=`docker ps | grep fundrequest.testrpc.dev`
+  if [[ $? == 0 ]]; then
+    for container in `docker ps | grep fundrequest.testrpc.dev | cut -d " " -f1`
+    do
+      docker stop $container
+    done
+    for container in `docker ps -a | grep fundrequest.testrpc.dev | cut -d " " -f1`
+    do
+      docker rm $container
+    done
+    echo -e "$RESET_COLORS""INFO > Module 'testrpc' has been stopped."
+  else
+    echo -e "$RESET_COLORS""INFO > Module 'testrpc' already stopped."
+  fi
+}
+
+restart()
+{
+  echo -e "INFO > Restarting module 'testrpc' $COLOR_GREEN"
+  CMD=`docker ps | grep fundrequest.testrpc.dev`
+  if [[ $?  == 0 ]]; then
+    echo "INFO > Stopping container 'fundrequest.testrpc.dev'"
+    FEEDBACK=`docker stop fundrequest.testrpc.dev`
+  fi 
+  echo "INFO > Starting container 'fundrequest.testrpc.dev'"
+  CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name fundrequest.testrpc.dev fundrequest/testrpc`
+  sleep 5
+  CMD=`docker ps | grep fundrequest.testrpc.dev`
+  if [[ $? != 0 ]]; then
+    echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.testrpc.dev', something must be wrong. Exiting.""$RESET_COLORS"
+    exit 1
+  else
+    echo "INFO > container 'fundrequest.testrpc.dev' started with id $CONTAINER_ID""$RESET_COLORS"
+    sleep 2
+    docker logs fundrequest.testrpc.dev
+    echo -e "INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.testrpc.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
+  fi
+}
+
+case "$ACTION" in
+      install)
+          install
+          ;;
+
+      remove)
+          remove
+          ;;
+
+      start)
+          start
+          ;;
+
+      stop)
+          stop
+          ;;
+
+      restart)
+          restart
+          ;;
+       
+      *)
+          usage
+          echo "BAD ARGUMENTS: '$ACTION' is an unknown ACTION." >&2
+          exit 1
+
+esac
+
+exit
+
+
+
+
+

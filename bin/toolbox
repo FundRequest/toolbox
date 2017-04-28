@@ -1,0 +1,100 @@
+#/bin/bash -e
+: '
+FundRequest Toolbox used to setup several FundRequest modules
+
+Version 1.0
+  - 2017-04-28 : Init
+  
+
+Updated by Karel Striegel
+'
+VERSION=1.0
+SCRIPT_LOC=`dirname $0`
+
+usage()
+{
+cat <<EOF
+
+usage: $0 ACTION MODULE
+
+FundRequest Toolbox used to setup several FundRequest modules
+
+ACTION:
+   install                Install the module
+   remove                 Remove the module
+   start                  Start the module
+   stop                   Stop the module
+   restart                Restart the module
+   update                 Update the module
+   
+MODULE:
+   all                    Target all the supported modules
+   testrpc                Fast Ethereum RPC client for testing and development
+   front-end              FundRequest Front-end module
+   back-end               FundRequest Front-end module
+   
+
+EOF
+}
+
+checkPrereq(){
+  TMP=`docker version 2>/dev/null` 
+  if [[ $? != 0 ]]
+  then
+     echo "ERROR: Docker command not found." >&2
+     echo "       Please download and install Docker."
+     echo "       Visit https://www.docker.com/community-edition" >&2
+     exit 1
+  fi
+}
+
+checkPrereq
+
+ACTION=$1
+MODULE=$2
+
+COLOR_COLUMN="\033[36m"
+COLOR_VALUE="\033[31m"
+RESET_COLORS="\033[0m"
+SAYAN_COLORS="\033[95m"
+
+
+# Parameter checking
+if [[ -z $ACTION ]] || [[ -z $MODULE ]]
+then
+     usage
+     echo "BAD ARGUMENTS: Please provide at least an ACTION and a MODULE." >&2
+     exit 1
+fi
+
+if [[ $ACTION != "install" ]] && [[ $ACTION != "start" ]] && [[ $ACTION != "stop" ]] && [[ $ACTION != "update" ]] && [[ $ACTION != "remove" ]] && [[ $ACTION != "restart" ]] 
+then
+     usage
+     echo "BAD ARGUMENTS: '$ACTION' is an unknown ACTION." >&2
+     exit 1
+fi
+
+if [[ $MODULE != "all" ]] && [[ $MODULE != "testrpc" ]] && [[ $MODULE != "front-end" ]] && [[ $MODULE != "back-end" ]] 
+then
+     usage
+     echo "BAD ARGUMENTS: '$MODULE' is an unknown MODULE." >&2
+     exit 1
+fi
+
+# Main program
+echo
+echo "FundRequest Toolbox $VERSION"
+echo "------------------------"
+
+if [[ $MODULE == "all" ]]
+then
+ for item in `ls -1 $SCRIPT_LOC/../modules`
+ do
+ 	echo "INFO > Loading module '$item'"
+ 	$SCRIPT_LOC/../modules/$item/setup $ACTION
+ done
+else
+	echo "INFO > Loading module '$MODULE'"
+	$SCRIPT_LOC/../modules/$MODULE/setup $ACTION
+fi
+exit
