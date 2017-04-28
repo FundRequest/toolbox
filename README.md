@@ -45,6 +45,3 @@ MODULE:
    back-end               FundRequest Front-end module
 ```
 
-# DEMO
-
-![Demo Video](docs/toolbox_demo.mp4)
