@@ -178,18 +178,23 @@ start()
     else
       echo -e "$COLOR_GREEN""INFO > container 'fundrequest.back-end-db.dev' started with id $CONTAINER_ID"
       sleep 4
-      docker logs fundrequest.back-end-db.dev
-      echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-db.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+      docker logs fundrequest.back-end-db.dev 
+      if [[ $? != 0 ]]; then
+      	echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.back-end-db.dev', something must be wrong. Exiting.""$RESET_COLORS"
+      	exit 1
+	  else
+	  	echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-db.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+	  fi
     fi
   fi
-
+  sleep 5
   #CORE
   CMD=`docker ps | grep fundrequest.back-end-core.dev`
   if [[ $?  == 0 ]]; then
     echo -e "$COLOR_GREEN""INFO > Container 'fundrequest.back-end-core.dev' already running"
     echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-core.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
  else
-    echo "INFO > Starting container 'fundrequest.back-end.dev'"
+    echo "INFO > Starting container 'fundrequest.back-end-core.dev'"
     CONTAINER_ID=`docker run --rm -d -p 127.0.0.1:5567:8080 --name fundrequest.back-end-core.dev -v $SCRIPT_LOC/config:/config --link fundrequest.back-end-db.dev:fundrequest.back-end-db.dev fundrequest/back-end-core`
     sleep 5
     CMD=`docker ps | grep fundrequest.back-end-core.dev`
@@ -199,8 +204,13 @@ start()
     else
       echo -e "$COLOR_GREEN""INFO > container 'fundrequest.back-end-core.dev' started with id $CONTAINER_ID"
       sleep 2
-      docker logs fundrequest.back-end-core.dev
-      echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-core.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+      docker logs fundrequest.back-end-core.dev 
+      if [[ $? != 0 ]]; then
+        echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.back-end-core.dev', something must be wrong. Exiting.""$RESET_COLORS"
+        exit 1
+      else
+        echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-core.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+	  fi
     fi
   fi
 }

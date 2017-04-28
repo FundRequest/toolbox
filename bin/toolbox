@@ -83,8 +83,8 @@ fi
 
 # Main program
 echo
-echo "FundRequest Toolbox $VERSION"
-echo "------------------------"
+echo "FundRequest Toolbox v$VERSION"
+echo "--------------------------"
 
 if [[ $MODULE == "all" ]]
 then
