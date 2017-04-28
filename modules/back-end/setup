@@ -1,2 +1,288 @@
-#!/bin/bash
+#/bin/bash -e
+: '
+FundRequest Toolbox module Back-end
+
+Version 1.0
+  - 2017-04-28 : Init
+  
+
+Updated by Karel Striegel
+'
+VERSION=1.0
+SCRIPT_LOC=`dirname $0`
+
+COLOR_BLUE="\033[36m"
+COLOR_GREEN="\033[31m"
+RESET_COLORS="\033[0m"
+SAYAN_COLORS="\033[95m"
+
+usage()
+{
+cat <<EOF
+
+usage: $0 MODULE
+
+FundRequest Toolbox module Back-end
+
+ACTION:
+   install                Install the module 
+   remove                 Remove the module 
+   start                  Start the module 
+   stop                   Stop the module 
+   restart                Restart the module
+   update                 Update the module
+ 
+EOF
+}
+
+checkPrereq(){
+  TMP=`docker version 2>/dev/null` 
+  if [[ $? != 0 ]]
+  then
+     echo "ERROR: Docker command not found." >&2
+     echo "       Please download and install Docker."
+     echo "       Visit https://www.docker.com/community-edition" >&2
+     exit 1
+  fi
+
+  TMP=`mvn --version 2>/dev/null` 
+  if [[ $? != 0 ]]
+  then
+     echo "ERROR: Maven command not found." >&2
+     echo "       Please download and install Maven."
+     echo "       Visit https://maven.apache.org/download.cgi" >&2
+     exit 1
+  fi
+}
+
+checkPrereq
+
+ACTION=$1
+
+# Parameter checking
+if [[ -z $ACTION ]] 
+then
+     usage
+     echo "BAD ARGUMENTS: Please provide at least an ACTION" >&2
+     exit 1
+fi
+
+if [[ $ACTION != "install" ]] && [[ $ACTION != "start" ]] && [[ $ACTION != "stop" ]] && [[ $ACTION != "update" ]] && [[ $ACTION != "remove" ]] && [[ $ACTION != "restart" ]] 
+then
+     usage
+     echo "BAD ARGUMENTS: '$ACTION' is an unknown ACTION." >&2
+     exit 1
+fi
+
+
+install()
+{
+  echo "INFO > Installing module 'back-end'"
+  INSTALLED="true"
+  CMD=`docker images | grep mariadb | grep 10.1`
+  if [[ $? != 0 ]]; then
+  	INSTALLED="false"
+    echo -e "INFO > Image 'mariadb:10.1' not found, downloading ...""$COLOR_BLUE"
+    docker pull mariadb:10.1
+    if [[ $? == 0 ]]; then
+      echo -e "$RESET_COLORS""INFO > Image 'mariadb:10.1' installed."
+    fi
+    cd $OLD_PWD
+  fi
+  CMD=`docker images | grep fundrequest/back-end-core`
+  if [[ $? != 0 ]]; then
+  	INSTALLED="false"
+    echo -e "$RESET_COLORS""INFO > Image 'fundrequest/back-end-core' not found, creating ...""$COLOR_BLUE"
+    OLD_PWD=$PWD
+    cd $SCRIPT_LOC/
+    git clone https://gitlab.fundrequest.io/fundrequest/mvp-back-end src
+    cd src
+    mvn clean install
+    docker build -t fundrequest/back-end-core .
+    if [[ $? == 0 ]]; then
+      echo -e "$RESET_COLORS""INFO > Succesfully create 'fundrequest/back-end-core' image."
+    else
+      echo -e "$SAYAN_COLORS""INFO > Failed to create the 'fundrequest/back-end-core' image. Installation has failed""$RESET_COLORS"
+      cd ../
+	  rm -rf src
+	  cd $OLD_PWD
+	  exit 1
+    fi
+    cd ../
+    rm -rf src
+    cd $OLD_PWD
+  fi
+
+  if [[ $INSTALLED == "true" ]]
+  then
+    echo "INFO > Module 'back-end' already installed."
+  fi
+  	
+}
+
+remove()
+{
+  echo -e "INFO > Removing module 'back-end' $SAYAN_COLORS"
+  REMOVED="true"
+  CMD=`docker images | grep fundrequest/back-end-core`
+  if [[ $? == 0 ]]; then
+  	REMOVED="false"
+    for container in `docker ps | grep fundrequest/back-end-core | cut -d " " -f1`
+    do
+      docker stop $container
+    done
+    for container in `docker ps -a | grep fundrequest/back-end-core | cut -d " " -f1`
+    do
+      docker rm $container
+    done
+    docker rmi fundrequest/back-end-core
+  fi
+  CMD=`docker ps -a | grep fundrequest/back-end-db`
+  if [[ $? == 0 ]]; then
+  	REMOVED="false"
+    for container in `docker ps | grep fundrequest/back-end-db | cut -d " " -f1`
+    do
+      docker stop $container
+    done
+    for container in `docker ps -a | grep fundrequest/back-end-db | cut -d " " -f1`
+    do
+      docker rm $container
+    done
+  fi
+
+  rm -rf $SCRIPT_LOC/db-data
+
+  if [[ REMOVED == "true" ]]; then
+  	echo -e "$RESET_COLORS""INFO > Module 'back-end' already removed."
+  else
+  	echo -e "$RESET_COLORS""INFO > Module 'back-end' has been removed."
+  fi
+}
+
+start()
+{
+  echo "INFO > Starting module 'back-end'"
+  #DB
+  CMD=`docker ps | grep fundrequest.back-end-db.dev`
+  if [[ $?  == 0 ]]; then
+    echo -e "$COLOR_GREEN""INFO > Container 'fundrequest.back-end-db.dev' already running"
+    echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-db.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
+ else
+    echo -e "$RESET_COLORS""INFO > Starting container 'fundrequest.back-end-db.dev'""$COLOR_GREEN"
+    CONTAINER_ID=`docker run --rm -d -p 127.0.0.1:6567:3306 --name fundrequest.back-end-db.dev -e MYSQL_DATABASE=dfund -e MYSQL_USER=fundly_dev -e MYSQL_PASSWORD=2AECSyr9oGZu -e MYSQL_RANDOM_ROOT_PASSWORD=true -v $SCRIPT_LOC/db-data:/var/lib/mysql mariadb:10.1`
+    sleep 5
+    CMD=`docker ps | grep fundrequest.back-end-db.dev`
+    if [[ $? != 0 ]]; then
+      echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.back-end-db.dev', something must be wrong. Exiting.""$RESET_COLORS"
+      exit 1
+    else
+      echo -e "$COLOR_GREEN""INFO > container 'fundrequest.back-end-db.dev' started with id $CONTAINER_ID"
+      sleep 4
+      docker logs fundrequest.back-end-db.dev
+      echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-db.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+    fi
+  fi
+
+  #CORE
+  CMD=`docker ps | grep fundrequest.back-end-core.dev`
+  if [[ $?  == 0 ]]; then
+    echo -e "$COLOR_GREEN""INFO > Container 'fundrequest.back-end-core.dev' already running"
+    echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-core.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
+ else
+    echo "INFO > Starting container 'fundrequest.back-end.dev'"
+    CONTAINER_ID=`docker run --rm -d -p 127.0.0.1:5567:8080 --name fundrequest.back-end-core.dev -v $SCRIPT_LOC/config:/config --link fundrequest.back-end-db.dev:fundrequest.back-end-db.dev fundrequest/back-end-core`
+    sleep 5
+    CMD=`docker ps | grep fundrequest.back-end-core.dev`
+    if [[ $? != 0 ]]; then
+      echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.back-end-core.dev', something must be wrong. Exiting.""$RESET_COLORS"
+      exit 1
+    else
+      echo -e "$COLOR_GREEN""INFO > container 'fundrequest.back-end-core.dev' started with id $CONTAINER_ID"
+      sleep 2
+      docker logs fundrequest.back-end-core.dev
+      echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.back-end-core.dev$RESET_COLORS' to start tailing the container log. Press Ctrl+C to dettach."
+    fi
+  fi
+}
+
+stop()
+{
+  echo -e "$RESET_COLORS""INFO > Stopping module 'back-end'""$SAYAN_COLORS"
+  STOPPED="true"
+  CMD=`docker ps | grep fundrequest.back-end-core.dev`
+  if [[ $? == 0 ]]; then
+  	STOPPED="false"
+    for container in `docker ps | grep fundrequest.back-end-core.dev | cut -d " " -f1`
+    do
+      docker stop $container
+    done
+    for container in `docker ps -a | grep fundrequest.back-end-core.dev | cut -d " " -f1`
+    do
+      docker rm $container
+    done
+    echo -e "INFO > Container 'fundrequest.back-end-core.dev' has been stopped."
+  fi
+  CMD=`docker ps | grep fundrequest.back-end-db.dev`
+  if [[ $? == 0 ]]; then
+  	STOPPED="false"
+    for container in `docker ps | grep fundrequest.back-end-db.dev | cut -d " " -f1`
+    do
+      docker stop $container
+    done
+    for container in `docker ps -a | grep fundrequest.back-end-db.dev | cut -d " " -f1`
+    do
+      docker rm $container
+    done
+    echo -e "INFO > Container 'fundrequest.back-end-db.dev' has been stopped."
+  fi
+
+  if [[ $STOPPED == "true" ]]
+  then
+    echo -e "$RESET_COLORS""INFO > Module 'back-end' already stopped."
+  else
+  	echo -e "$RESET_COLORS""INFO > Module 'back-end' has been stopped."
+  fi
+}
+
+restart()
+{
+  echo -e "$RESET_COLORS""INFO > Restarting module 'back-end'"
+  stop
+  start
+  echo -e "$RESET_COLORS""INFO > Module 'back-end' has been restarted"
+}
+
+case "$ACTION" in
+      install)
+          install
+          ;;
+
+      remove)
+          remove
+          ;;
+
+      start)
+          start
+          ;;
+
+      stop)
+          stop
+          ;;
+
+      restart)
+          restart
+          ;;
+       
+      *)
+          usage
+          echo "BAD ARGUMENTS: '$ACTION' is an unknown ACTION." >&2
+          exit 1
+
+esac
+
+exit
+
+
+
+
 

@@ -73,7 +73,6 @@ install()
   if [[ $? != 0 ]]; then
     echo "INFO > Image 'fundrequest/testrpc' not found, creating ..."
     OLD_PWD=$PWD
-    SCRIPT_LOC=`dirname $0`
     cd $SCRIPT_LOC/
     echo -e $COLOR_BLUE
     docker build -t fundrequest/testrpc .
@@ -112,7 +111,7 @@ start()
   echo -e "INFO > Starting module 'testrpc' $COLOR_GREEN"
   CMD=`docker ps | grep fundrequest.testrpc.dev`
   if [[ $?  == 0 ]]; then
-    echo "INFO > Container 'fundrequest.testrpc.dev' already started"
+    echo "INFO > Container 'fundrequest.testrpc.dev' already running"
     echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.testrpc.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
  else
     echo "INFO > Starting container 'fundrequest.testrpc.dev'"
