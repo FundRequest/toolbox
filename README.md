@@ -10,7 +10,7 @@ The toolbox is a combination of Docker images and shell scripts.
 
 
 ```bash
-git clone http://gitlab.fundrequest.io/fundrequest/toolbox.git
+git clone https://gitlab.fundrequest.io/fundrequest/toolbox.git
 toolbox/install
 ```
 
