@@ -21,9 +21,9 @@ source ~/.bash_profile
 
 The toolbox currently contains the following modules:
 
-[x] `testrpc` - Fast Ethereum RPC client for testing and development 
-[x] `front-end` - FundRequest Front-end module
-[x] ` back-end` - FundRequest Front-end module
+- [x] `testrpc` - Fast Ethereum RPC client for testing and development 
+- [x] `front-end` - FundRequest Front-end module
+- [x] ` back-end` - FundRequest Front-end module
 
 # USAGE
 
