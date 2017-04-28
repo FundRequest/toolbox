@@ -11,9 +11,7 @@ The toolbox is a combination of Docker images and shell scripts.
 
 ```bash
 git clone http://gitlab.fundrequest.io/fundrequest/toolbox.git
-cd toolbox
-echo "export PATH=$PATH:$PWD/bin" >> ~/.bash_profile
-source ~/.bash_profile
+toolbox/install
 ```
 
 # INVENTORY

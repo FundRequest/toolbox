@@ -1,0 +1,8 @@
+#/bin/bash
+COLOR_GREEN="\033[31m"
+RESET_COLORS="\033[0m"
+
+echo "export PATH=$PATH:$PWD/bin" >> ~/.bash_profile
+source ~/.bash_profile
+echo -e "$COLOR_GREEN""FundRequest Toolbox has been install""$RESET_COLORS"
+toolbox -h
