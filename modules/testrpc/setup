@@ -115,7 +115,8 @@ start()
     echo -e "$RESET_COLORS""INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.testrpc.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
  else
     echo "INFO > Starting container 'fundrequest.testrpc.dev'"
-    CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name fundrequest.testrpc.dev fundrequest/testrpc "--account=0xe5a0aca19ca6326aa52ea8cdc795602d0675d5f1f106788e8dddfbdf7cf548d0,10000000000000000000000000000000"`
+    CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name fundrequest.testrpc.dev fundrequest/testrpc -m "dead fish racket soul plunger dirty boats cracker mammal nicholas cage"`
+#"--account=0xe5a0aca19ca6326aa52ea8cdc795602d0675d5f1f106788e8dddfbdf7cf548d0,10000000000000000000000000000000"`
     sleep 5
     CMD=`docker ps | grep fundrequest.testrpc.dev`
     if [[ $? != 0 ]]; then
@@ -158,7 +159,7 @@ restart()
     FEEDBACK=`docker stop fundrequest.testrpc.dev`
   fi 
   echo "INFO > Starting container 'fundrequest.testrpc.dev'"
-  CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name fundrequest.testrpc.dev fundrequest/testrpc`
+  CONTAINER_ID=`docker run -d --rm -p 127.0.0.1:8545:8545 --name fundrequest.testrpc.dev fundrequest/testrpc -m "dead fish racket soul plunger dirty boats cracker mammal nicholas cage"`
   sleep 5
   CMD=`docker ps | grep fundrequest.testrpc.dev`
   if [[ $? != 0 ]]; then
