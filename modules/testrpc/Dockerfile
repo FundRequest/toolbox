@@ -1,8 +1,9 @@
 FROM debian:8.7
 LABEL maintainer "karel@striegel.be"
-
-RUN apt-get update && \
-    apt-get upgrade && \
+ENV http_proxy http://proxy.ipc.be:8080
+ENV https_proxy http://proxy.ipc.be:8080
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
     apt-get install curl vim git -y && \
     curl -sL https://deb.nodesource.com/setup_7.x |  bash - && \
     apt-get install -y nodejs && \
