@@ -1,7 +1,7 @@
 FROM debian:8.7
 LABEL maintainer "karel@striegel.be"
-ENV http_proxy http://proxy.ipc.be:8080
-ENV https_proxy http://proxy.ipc.be:8080
+#ENV http_proxy http://proxy.ipc.be:8080
+#ENV https_proxy http://proxy.ipc.be:8080
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     apt-get install curl vim git -y && \
