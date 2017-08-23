@@ -30,8 +30,6 @@ ACTION:
 MODULE:
    all                    Target all the supported modules
    testrpc                Fast Ethereum RPC client for testing and development
-   front-end              FundRequest Front-end module
-   back-end               FundRequest Front-end module
    
 
 EOF
@@ -74,7 +72,7 @@ then
      exit 1
 fi
 
-if [[ $MODULE != "all" ]] && [[ $MODULE != "testrpc" ]] && [[ $MODULE != "front-end" ]] && [[ $MODULE != "back-end" ]] 
+if [[ $MODULE != "all" ]] && [[ $MODULE != "testrpc" ]] && [[ $MODULE != "website" ]] && [[ $MODULE != "platform" ]] 
 then
      usage
      echo "BAD ARGUMENTS: '$MODULE' is an unknown MODULE." >&2

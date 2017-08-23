@@ -20,8 +20,6 @@ toolbox/install
 The toolbox currently contains the following modules:
 
 - [x] `testrpc` - Fast Ethereum RPC client for testing and development 
-- [ ] `front-end` - FundRequest Front-end module
-- [x] `back-end` - FundRequest Front-end module
 
 # USAGE
 
@@ -41,7 +39,5 @@ ACTION:
 MODULE:
    all                    Target all the supported modules
    testrpc                Fast Ethereum RPC client for testing and development
-   front-end              FundRequest Front-end module
-   back-end               FundRequest Front-end module
 ```
 
