@@ -1,5 +1,5 @@
 #/bin/bash
-COLOR_GREEN="\033[31m"
+COLOR_GREEN="\033[32m"
 RESET_COLORS="\033[0m"
 
 echo "export PATH=$PATH:$PWD/bin" >> ~/.bash_profile

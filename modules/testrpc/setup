@@ -12,7 +12,7 @@ VERSION=1.0
 SCRIPT_LOC=`dirname $0`
 
 COLOR_BLUE="\033[36m"
-COLOR_GREEN="\033[31m"
+COLOR_GREEN="\033[32m"
 RESET_COLORS="\033[0m"
 SAYAN_COLORS="\033[95m"
 
@@ -166,7 +166,7 @@ restart()
     echo -e "$SAYAN_COLORS""ERROR > Can't find container 'fundrequest.testrpc.dev', something must be wrong. Exiting.""$RESET_COLORS"
     exit 1
   else
-    echo "INFO > container 'fundrequest.testrpc.dev' started with id $CONTAINER_ID""$RESET_COLORS"
+    echo -e "INFO > container 'fundrequest.testrpc.dev' started with id $CONTAINER_ID""$RESET_COLORS"
     sleep 2
     docker logs fundrequest.testrpc.dev
     echo -e "INFO > Run '$COLOR_BLUE""docker logs -f fundrequest.testrpc.dev$RESET_COLORS' to start tailing the container log. Ctrl+C to dettach."
