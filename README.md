@@ -3,7 +3,7 @@
 This git repo contains support tool / utilities scripts to help building, developing and running of the different MVP components
 
 
-# INSTALL
+### INSTALL
 
 
 The toolbox is a combination of Docker images and shell scripts.
@@ -14,14 +14,14 @@ git clone https://gitlab.fundrequest.io/fundrequest/toolbox.git
 toolbox/install
 ```
 
-# INVENTORY
+### INVENTORY
 
 
 The toolbox currently contains the following modules:
 
 - [x] `testrpc` - Fast Ethereum RPC client for testing and development 
 
-# USAGE
+### USAGE
 
 ```bash
 usage: toolbox ACTION MODULE
