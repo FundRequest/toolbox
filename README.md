@@ -1,4 +1,4 @@
-# Welcome to the FundRequest Toolbox
+## FundRequest Toolbox <img align="right" src="https://fundrequest.io/assets/img/logo.png" height="30px" />
 
 This git repo contains support tool / utilities scripts to help building, developing and running of the different MVP components
 
